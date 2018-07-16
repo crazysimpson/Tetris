@@ -1,0 +1,17 @@
+.container{
+    width :80px;
+    height:160px;
+    border-style: solid;
+    position: absolute;
+    left:auto;
+    top:auto;
+
+}
+
+.block{
+    background-color: azure;
+    width: 10px;
+    height:10px;
+    position:absolute;
+
+}
