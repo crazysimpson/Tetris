@@ -53,15 +53,14 @@ function Shape(x, y, type, direction, screen)
     this.position_x=x;
     this.position_y=y;
     this.type = type;
-    this.direction = direction;
+    this.shapedirection = direction;
     this.screen = screen;
-    if(this.type == 1)
-    {
-        this.block1Position = [0,0];
-        this.block2Position = [0,1];
-        this.block3Position = [0,2];
-        this.block4Position = [0,3];
-    }
+    this.block1Position=[];
+    this.block2Position=[];
+    this.block3Position=[];
+    this.block4Position=[];
+    this.address();
+
 };
 
 //得分后向下平移
@@ -79,18 +78,11 @@ Shape.prototype.updateScreen = function (row){
     });
     if(judge){
         console.log("stopupdate");
-        this.screen[row] = Array.prototype.slice.call(this.screen[row-1], 0);
-        Array.prototype.forEach.call(this.screen[row], function(val, index, arr){
-            arr[index].setValue(val.value);
-        });
+        rowCopy(this.screen[row], this.screen[row-1]);
         return;
     }else{
         console.log("running update");
-        this.screen[row] = Array.prototype.slice.call(this.screen[row-1], 0);
-        Array.prototype.forEach.call(this.screen[row], function(val, index, arr){
-            arr[index].setValue(val.value);
-            console.log("changing");
-        });
+        rowCopy(this.screen[row], this.screen[row-1]);
         this.updateScreen(row-1);
     }
     
@@ -143,24 +135,18 @@ Shape.prototype.checkScore = function(startPoint ){
 
 //初始化形状
 Shape.prototype.initShape = function(flag){
-    if(this.type = 1)
-    {
-        this.screen[this.position_x][this.position_y].setValue(flag);
-        this.screen[this.position_x][this.position_y+1].setValue(flag);
-        this.screen[this.position_x][this.position_y+2].setValue(flag);
-        this.screen[this.position_x][this.position_y+3].setValue(flag);
-    }
+        this.screen[this.position_x+this.block1Position[0]][this.position_y+this.block1Position[1]].setValue(flag);
+        this.screen[this.position_x+this.block2Position[0]][this.position_y+this.block2Position[1]].setValue(flag);
+        this.screen[this.position_x+this.block3Position[0]][this.position_y+this.block3Position[1]].setValue(flag);
+        this.screen[this.position_x+this.block4Position[0]][this.position_y+this.block4Position[1]].setValue(flag);
 };
 
 //清楚当前位置
 Shape.prototype.clearPosition = function(){
-    if(this.type ==1 && this.direction == 1) 
-    {
-        this.screen[this.position_x][this.position_y].setValue(0);
-        this.screen[this.position_x][this.position_y+1].setValue(0);
-        this.screen[this.position_x][this.position_y+2].setValue(0);
-        this.screen[this.position_x][this.position_y+3].setValue(0);
-    }
+        this.screen[this.position_x+this.block1Position[0]][this.position_y+this.block1Position[1]].setValue(0);
+        this.screen[this.position_x+this.block2Position[0]][this.position_y+this.block2Position[1]].setValue(0);
+        this.screen[this.position_x+this.block3Position[0]][this.position_y+this.block3Position[1]].setValue(0);
+        this.screen[this.position_x+this.block4Position[0]][this.position_y+this.block4Position[1]].setValue(0);
 };
 
 //碰撞检测
@@ -168,6 +154,8 @@ Shape.prototype.checkCrash = function(moveDirection){
     var nextPosition_x = this.position_x;
     var nextPosition_y = this.position_y;
     switch(moveDirection){
+        case 0:
+            break;
         case 1:
             nextPosition_y -=1;
             break;
@@ -180,8 +168,12 @@ Shape.prototype.checkCrash = function(moveDirection){
     }
     if(nextPosition_x<0 || nextPosition_x>15 || nextPosition_y<0 || nextPosition_y>7)
     {
+        console.log("钉子错误");
+        console.log(moveDirection);
+        console.log(nextPosition_y);
         return true;
     }
+    //此处插入各个方块溢出检测代码
     this.clearPosition();
     var judge = nextPosition_x+this.block1Position[0]>15 || nextPosition_y + this.block1Position[1]>7
     || nextPosition_x+this.block2Position[0]>15 || nextPosition_y + this.block2Position[1]>7
@@ -198,10 +190,12 @@ Shape.prototype.checkCrash = function(moveDirection){
 //下一个方块
 Shape.prototype.nextShape = function ()
 {
-    this.type =1 ;
-    this.direction =1;
+    this.type =Math.ceil(Math.random()*5) ;
+    console.log("type:"+this.type);
     this.position_x = 0;
     this.position_y = 0;
+    this.shapedirection = 1;
+    this.address();
     this.initShape(1);
     if(this.checkCrash(2))
     {
@@ -253,6 +247,9 @@ Shape.prototype.listenKey = function(){
         case 39:
             this.move(3);
             break;
+        case 38:
+            this.transform();
+            break;
         case 37:
             this.move(1);
             break;
@@ -267,8 +264,108 @@ Shape.prototype.autoDown = function(mil){
 
 //旋转
 Shape.prototype.transform = function(){
-
+    this.shapedirection = ++this.shapedirection>4? 1: this.shapedirection;
+    
+    console.log(this.shapedirection);
+    this.clearPosition();
+    this.address();
+    if(this.checkCrash(0)){
+        this.shapedirection = --this.shapedirection<1? 4: this.shapedirection;
+        this.address();
+    }
+    this.initShape(1);
 };
+
+//确定坐标轴
+Shape.prototype.address = function(){
+    console.log("transform");
+    if(this.type == 1 && (this.shapedirection == 1|| this.shapedirection ==3))//长条
+    {
+        this.block1Position = [0,0];
+        this.block2Position = [0,1];
+        this.block3Position = [0,2];
+        this.block4Position = [0,3];
+    }
+    if(this.type == 1 && (this.shapedirection == 2|| this.shapedirection ==4))//长条
+    {
+        this.block1Position = [0,0];
+        this.block2Position = [1,0];
+        this.block3Position = [2,0];
+        this.block4Position = [3,0];
+    }
+    if(this.type == 2)//方块
+    {
+        this.block1Position = [0,0];
+        this.block2Position = [0,1];
+        this.block3Position = [1,0];
+        this.block4Position = [1,1];
+    }
+    if(this.type == 3 && this.shapedirection == 1)//丁块
+    {
+        this.block1Position = [0,1];
+        this.block2Position = [1,0];
+        this.block3Position = [1,1];
+        this.block4Position = [1,2];
+    }
+    if(this.type == 3 && this.shapedirection == 2)//丁块
+    {
+        this.block1Position = [0,1];
+        this.block2Position = [1,0];
+        this.block3Position = [1,1];
+        this.block4Position = [2,1];
+    }
+    if(this.type == 3 && this.shapedirection == 3)//丁块
+    {
+        this.block1Position = [0,0];
+        this.block2Position = [0,1];
+        this.block3Position = [0,2];
+        this.block4Position = [1,1];
+    }
+    if(this.type == 3 && this.shapedirection == 4)//丁块
+    {
+        this.block1Position = [0,0];
+        this.block2Position = [1,0];
+        this.block3Position = [2,0];
+        this.block4Position = [1,1];
+    }
+    if(this.type == 4 && (this.shapedirection == 1 || this.shapedirection == 3))//左方块
+    {
+        this.block1Position = [0,0];
+        this.block2Position = [0,1];
+        this.block3Position = [1,1];
+        this.block4Position = [1,2];
+    }
+    if(this.type == 4 && (this.shapedirection == 2 || this.shapedirection == 4))//左方块
+    {
+        this.block1Position = [0,1];
+        this.block2Position = [1,0];
+        this.block3Position = [1,1];
+        this.block4Position = [2,0];
+    }
+    if(this.type == 5 && (this.shapedirection == 1 || this.shapedirection == 3))//右方块
+    {
+        this.block1Position = [1,0];
+        this.block2Position = [1,1];
+        this.block3Position = [0,1];
+        this.block4Position = [0,2];
+    }
+    if(this.type == 5 && (this.shapedirection == 2 || this.shapedirection == 4))//右方块
+    {
+        this.block1Position = [0,0];
+        this.block2Position = [1,0];
+        this.block3Position = [1,1];
+        this.block4Position = [2,1];
+    }
+}
+
+/*========================通用方法=======================*/
+function rowCopy(row1, row2)
+{
+    for(var cur=0; cur<row1.length; cur++)
+    {
+        row1[cur].setValue(row2[cur].value);
+    }
+}
 
 
 /*===================================初始化游戏==========================================*/
@@ -291,7 +388,7 @@ function initGame(){
         }
     }
 
-    var test = new Shape(0,0,1,1,block_point);
+    var test = new Shape(0,0,3,1,block_point);
     document.onkeydown = test.listenKey.bind(test);
     test.initShape(1);
     test.autoDown(1000);
