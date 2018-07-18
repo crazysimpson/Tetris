@@ -1,5 +1,6 @@
 window.onload = initGame;
 var gameScore=0;
+var blockSize =30;
 
 /*===============================像素块====================================*/
 //定义像素块
@@ -12,7 +13,7 @@ Block.prototype.setValue = function(val){
     this.value = val;
     if(this.value==1)
     {
-        this.item.style.backgroundColor="black";
+        this.item.style.backgroundColor="aqua";
         //this.item.style["background-color"]= "black !important";
     }
     else{
@@ -32,9 +33,11 @@ Block.prototype.checkValue = function(){
 };
 
 Block.prototype.initItem = function(left, top){
-    var style_left = left*10;
-    var style_top = top*10;
-    this.item.setAttribute("class", "block")
+    var style_left = left*blockSize;
+    var style_top = top*blockSize;
+    this.item.style["width"] = blockSize+"px";
+    this.item.style["height"] =  blockSize+"px";
+    this.item.setAttribute("class", "block");
     //this.item.setAttribute("left", style_left+"px");
     this.item.style.cssText += "left: "+style_left+"px !important";
     //this.item.setAttribute("top", style_top+"px");
@@ -127,6 +130,8 @@ Shape.prototype.checkScore = function(startPoint ){
     }
     else{
         gameScore+=1000;
+        var scoreH1 = document.getElementById("score");
+        scoreH1.innerText = gameScore;
         console.log("score:"+gameScore);
         this.clearRow(startPoint);
         this.checkScore(startPoint);
@@ -168,12 +173,21 @@ Shape.prototype.checkCrash = function(moveDirection){
     }
     if(nextPosition_x<0 || nextPosition_x>15 || nextPosition_y<0 || nextPosition_y>7)
     {
-        console.log("钉子错误");
         console.log(moveDirection);
         console.log(nextPosition_y);
         return true;
     }
     //此处插入各个方块溢出检测代码
+
+    var judgeTransPosition = (nextPosition_x+this.block1Position[0])>15 || (nextPosition_y+this.block1Position[1]>7)
+    ||(nextPosition_x+this.block2Position[0]>15) || (nextPosition_y+this.block2Position[1]>7)
+    ||(nextPosition_x+this.block3Position[0]>15)|| (nextPosition_y+this.block3Position[1]>7)
+    ||(nextPosition_x+this.block4Position[0]>15)||(nextPosition_y+this.block4Position[1]>7);
+    if(judgeTransPosition)
+    {
+        return judgeTransPosition;
+    }
+
     this.clearPosition();
     var judge = nextPosition_x+this.block1Position[0]>15 || nextPosition_y + this.block1Position[1]>7
     || nextPosition_x+this.block2Position[0]>15 || nextPosition_y + this.block2Position[1]>7
@@ -190,7 +204,7 @@ Shape.prototype.checkCrash = function(moveDirection){
 //下一个方块
 Shape.prototype.nextShape = function ()
 {
-    this.type =Math.ceil(Math.random()*5) ;
+    this.type =Math.ceil(Math.random()*7) ;
     console.log("type:"+this.type);
     this.position_x = 0;
     this.position_y = 0;
@@ -356,61 +370,61 @@ Shape.prototype.address = function(){
         this.block3Position = [1,1];
         this.block4Position = [2,1];
     }
-    if(this.type == 6 && this.shapedirection == 1)//丁块
+    if(this.type == 6 && this.shapedirection == 1)//右L块
     {
         this.block1Position = [0,2];
         this.block2Position = [1,0];
         this.block3Position = [1,1];
         this.block4Position = [1,2];
     }
-    if(this.type == 6 && this.shapedirection == 2)//丁块
+    if(this.type == 6 && this.shapedirection == 2)//右L块
     {
         this.block1Position = [0,0];
         this.block2Position = [0,1];
         this.block3Position = [1,1];
         this.block4Position = [2,1];
     }
-    if(this.type == 6 && this.shapedirection == 3)//丁块
+    if(this.type == 6 && this.shapedirection == 3)//右L块
     {
         this.block1Position = [0,0];
-        this.block2Position = [0,1];
-        this.block3Position = [0,2];
-        this.block4Position = [1,1];
+        this.block2Position = [1,0];
+        this.block3Position = [0,1];
+        this.block4Position = [0,2];
     }
-    if(this.type == 6 && this.shapedirection == 4)//丁块
+    if(this.type == 6 && this.shapedirection == 4)//右L块
     {
         this.block1Position = [0,0];
         this.block2Position = [1,0];
         this.block3Position = [2,0];
         this.block4Position = [2,1];
     }
-    if(this.type == 7 && this.shapedirection == 1)//丁块
+    if(this.type == 7 && this.shapedirection == 1)//左L块
     {
         this.block1Position = [0,0];
         this.block2Position = [1,0];
         this.block3Position = [1,1];
         this.block4Position = [1,2];
     }
-    if(this.type == 7 && this.shapedirection == 2)//丁块
+    if(this.type == 7 && this.shapedirection == 2)//左L块
     {
         this.block1Position = [0,1];
         this.block2Position = [1,1];
         this.block3Position = [2,1];
         this.block4Position = [2,0];
     }
-    if(this.type == 7 && this.shapedirection == 3)//丁块
+    if(this.type == 7 && this.shapedirection == 3)//左L块
     {
         this.block1Position = [0,0];
         this.block2Position = [0,1];
         this.block3Position = [0,2];
         this.block4Position = [1,2];
     }
-    if(this.type == 7 && this.shapedirection == 4)//丁块
+    if(this.type == 7 && this.shapedirection == 4)//左L块
     {
         this.block1Position = [0,0];
         this.block2Position = [0,1];
-        this.block3Position = [1,1];
-        this.block4Position = [2,1];
+        this.block3Position = [1,0];
+        this.block4Position = [2,0];
     }
 }
 
@@ -427,7 +441,9 @@ function rowCopy(row1, row2)
 /*===================================初始化游戏==========================================*/
 //初始化游戏
 function initGame(){
-    
+    var mainScreen = document.getElementById("screen");
+    mainScreen.style["width"] = (8*blockSize).toString()+"px";
+    mainScreen.style["height"] =  (16*blockSize).toString()+"px";
     var block_point = new Array(16);
     var test = new Block();
     test.initItem(0,0);
@@ -444,7 +460,7 @@ function initGame(){
         }
     }
 
-    var test = new Shape(0,0,7,1,block_point);
+    var test = new Shape(0,0,1,1,block_point);
     document.onkeydown = test.listenKey.bind(test);
     test.initShape(1);
     test.autoDown(1000);
