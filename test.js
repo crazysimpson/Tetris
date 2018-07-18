@@ -356,6 +356,62 @@ Shape.prototype.address = function(){
         this.block3Position = [1,1];
         this.block4Position = [2,1];
     }
+    if(this.type == 6 && this.shapedirection == 1)//丁块
+    {
+        this.block1Position = [0,2];
+        this.block2Position = [1,0];
+        this.block3Position = [1,1];
+        this.block4Position = [1,2];
+    }
+    if(this.type == 6 && this.shapedirection == 2)//丁块
+    {
+        this.block1Position = [0,0];
+        this.block2Position = [0,1];
+        this.block3Position = [1,1];
+        this.block4Position = [2,1];
+    }
+    if(this.type == 6 && this.shapedirection == 3)//丁块
+    {
+        this.block1Position = [0,0];
+        this.block2Position = [0,1];
+        this.block3Position = [0,2];
+        this.block4Position = [1,1];
+    }
+    if(this.type == 6 && this.shapedirection == 4)//丁块
+    {
+        this.block1Position = [0,0];
+        this.block2Position = [1,0];
+        this.block3Position = [2,0];
+        this.block4Position = [2,1];
+    }
+    if(this.type == 7 && this.shapedirection == 1)//丁块
+    {
+        this.block1Position = [0,0];
+        this.block2Position = [1,0];
+        this.block3Position = [1,1];
+        this.block4Position = [1,2];
+    }
+    if(this.type == 7 && this.shapedirection == 2)//丁块
+    {
+        this.block1Position = [0,1];
+        this.block2Position = [1,1];
+        this.block3Position = [2,1];
+        this.block4Position = [2,0];
+    }
+    if(this.type == 7 && this.shapedirection == 3)//丁块
+    {
+        this.block1Position = [0,0];
+        this.block2Position = [0,1];
+        this.block3Position = [0,2];
+        this.block4Position = [1,2];
+    }
+    if(this.type == 7 && this.shapedirection == 4)//丁块
+    {
+        this.block1Position = [0,0];
+        this.block2Position = [0,1];
+        this.block3Position = [1,1];
+        this.block4Position = [2,1];
+    }
 }
 
 /*========================通用方法=======================*/
@@ -388,7 +444,7 @@ function initGame(){
         }
     }
 
-    var test = new Shape(0,0,3,1,block_point);
+    var test = new Shape(0,0,7,1,block_point);
     document.onkeydown = test.listenKey.bind(test);
     test.initShape(1);
     test.autoDown(1000);
